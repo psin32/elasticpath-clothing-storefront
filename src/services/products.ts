@@ -1,7 +1,9 @@
 import type {
+  Node,
   ProductResponse,
   ResourcePage,
   ShopperCatalogResource,
+  ShopperCatalogResourcePage,
   SubscriptionOffering,
 } from "@moltin/sdk";
 import { wait300 } from "../lib/product-helper";
@@ -66,31 +68,50 @@ const _getAllPages =
       client?: EPCCClient,
     ) => Promise<ResourcePage<T, I>>,
   ) =>
-  async (
-    offset: number = 0,
-    limit: number = 25,
-    accdata: T[] = [],
-  ): Promise<T[]> => {
-    const requestResp = await nextPageRequestFn(limit, offset);
-    const {
-      meta: {
-        page: newPage,
-        results: { total },
-      },
-      data: newData,
-    } = requestResp;
+    async (
+      offset: number = 0,
+      limit: number = 25,
+      accdata: T[] = [],
+    ): Promise<T[]> => {
+      const requestResp = await nextPageRequestFn(limit, offset);
+      const {
+        meta: {
+          page: newPage,
+          results: { total },
+        },
+        data: newData,
+      } = requestResp;
 
-    const updatedOffset = offset + newPage.total;
-    const combinedData = [...accdata, ...newData];
-    if (updatedOffset < total) {
-      return wait300.then(() =>
-        _getAllPages(nextPageRequestFn)(updatedOffset, limit, combinedData),
-      );
-    }
-    return Promise.resolve(combinedData);
-  };
+      const updatedOffset = offset + newPage.total;
+      const combinedData = [...accdata, ...newData];
+      if (updatedOffset < total) {
+        return wait300.then(() =>
+          _getAllPages(nextPageRequestFn)(updatedOffset, limit, combinedData),
+        );
+      }
+      return Promise.resolve(combinedData);
+    };
 
 const _getAllProductPages = (client: EPCCClient) =>
   _getAllPages((limit = 25, offset = 0) =>
     client.ShopperCatalog.Products.Limit(limit).Offset(offset).All(),
   );
+
+export async function getNodesByIds(
+  nodeIds: string[],
+  client: EPCCClient
+): Promise<Node[]> {
+  nodeIds = nodeIds.reverse()
+  const response: ShopperCatalogResourcePage<Node> = await client.ShopperCatalog.Nodes.Filter({
+    in: {
+      id: nodeIds.join(",")
+    }
+  }).All();
+
+  const nodes: Node[] = []
+  for (const nodeId of nodeIds) {
+    const node: Node | undefined = response.data.find(nd => nd.id == nodeId)
+    node && nodes.push(node)
+  }
+  return nodes
+}
