@@ -3,9 +3,9 @@ import { ProductDetailsComponent, ProductProvider } from "./product-display";
 import { getServerSideImplicitClient } from "../../../../lib/epcc-server-side-implicit-client";
 import { getNodesByIds, getProductById, getSubscriptionOffering } from "../../../../services/products";
 import { notFound } from "next/navigation";
-import { parseProductResponse } from "@elasticpath/shopper-common";
 import React from "react";
 import { Node } from "@moltin/sdk";
+import { parseProductResponse } from "../../../../shopper-common/src";
 
 export const dynamic = "force-dynamic";
 

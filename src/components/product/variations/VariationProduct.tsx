@@ -14,6 +14,7 @@ import PersonalisedInfo from "../PersonalisedInfo";
 import ProductHighlights from "../ProductHighlights";
 import Reviews from "../../reviews/yotpo/Reviews";
 import { ResourcePage, SubscriptionOffering } from "@moltin/sdk";
+import GeneralInfo from "../GeneralInfo";
 
 export const VariationProductDetail = ({
   variationProduct,
@@ -80,7 +81,7 @@ export function VariationProductContainer({ offerings }: { offerings: ResourcePa
     })
 
     if (options.length > 0) {
-      data.custom_inputs.options = options.join("/")
+      data.custom_inputs.options = options.join(" / ")
     }
 
     mutate({ productId: response.id, quantity: 1, data })
@@ -118,6 +119,7 @@ export function VariationProductContainer({ offerings }: { offerings: ResourcePa
           </form>
         </div>
       </div>
+      {/* {extensions && <GeneralInfo extensions={extensions} />} */}
       <Reviews product={response} />
     </div>
   );

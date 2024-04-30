@@ -8,12 +8,12 @@ import {
   ShopperCatalogResourcePage,
 } from "@moltin/sdk";
 import { notFound } from "next/navigation";
-import { ShopperProduct } from "@elasticpath/shopper-common";
 import {
   getMainImageForProductResponse,
   getOtherImagesForProductResponse,
 } from "../../../../lib/file-lookup";
 import { algoliaEnvData } from "../../../../lib/resolve-algolia-env";
+import { ShopperProduct } from "../../../../shopper-common/src";
 
 export const metadata: Metadata = {
   title: "Search",
