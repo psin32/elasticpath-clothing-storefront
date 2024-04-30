@@ -32,6 +32,19 @@ export function useVariationProduct(): {
     setSelectedOptions,
   } = ctx
 
+  const notSelectedVariation = Object.keys(selectedOptions).filter(key => selectedOptions[key] === undefined)
+  if (notSelectedVariation.length > 0) {
+    const data: any = {}
+    Object.keys(selectedOptions).map(key => {
+      variations.map(variation => {
+        if (variation.id == key) {
+          data[key] = variation.options[0].id
+        }
+      })
+    })
+    setSelectedOptions(data)
+  }
+
   const updateSelectedOptions = useCallback(
     (variationId: string, optionId: string) => {
       for (const selectedOptionKey in selectedOptions) {
