@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Configure,
   useHits,
@@ -20,6 +20,11 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { reviewsEnv } from "../../lib/resolve-reviews-field-env";
 import StarRatings from "react-star-ratings";
 import { SendEventForHits } from "instantsearch.js/es/lib/utils";
+import { ProductResponse, ShopperCatalogResource } from "@moltin/sdk";
+import { getEpccImplicitClient } from "../../lib/epcc-implicit-client";
+import { getProductByIds } from "../../services/products";
+import StrikePrice from "../product/StrikePrice";
+import Price from "../product/Price";
 
 const SearchBox = ({
   onChange,
@@ -98,13 +103,15 @@ const SearchBox = ({
   );
 };
 
-const HitComponent = ({ hit, sendEvent }: { hit: SearchHit, sendEvent: SendEventForHits }) => {
+const HitComponent = ({ hit, sendEvent, product }: { hit: SearchHit, sendEvent: SendEventForHits, product: ProductResponse }) => {
   const { ep_price, ep_main_image_url, ep_name, ep_sku, objectID } = hit;
 
-  const currencyPrice = ep_price?.[EP_CURRENCY_CODE];
+  const {
+    meta: { display_price, original_display_price },
+  } = product;
 
   return (
-    <div className="group" onClick={() => sendEvent('click', hit, 'Product Clicked')}>
+    <div className="group" onClick={() => sendEvent('click', hit, 'Autocomplete: Product Clicked')}>
       <div className="grid grid-cols-6 grid-rows-3 h-100 gap-2">
         <div className="col-span-2 row-span-3">
           {ep_main_image_url ? (
@@ -144,8 +151,25 @@ const HitComponent = ({ hit, sendEvent }: { hit: SearchHit, sendEvent: SendEvent
           )}
         </div>
         <div className="col-span-2">
-          {currencyPrice && (
-            <p className="text-sm font-semibold">{currencyPrice.formatted_price}</p>
+          {display_price && (
+            <div className="flex items-center">
+              {product?.meta?.component_products && (
+                <div className="mr-1 text-md">FROM </div>
+              )}
+              {original_display_price && (
+                <StrikePrice
+                  price={original_display_price.without_tax.formatted}
+                  currency={original_display_price.without_tax.currency}
+                  size="text-md"
+                />
+              )}
+              <Price
+                price={display_price.without_tax.formatted}
+                currency={display_price.without_tax.currency}
+                original_display_price={original_display_price}
+                size="text-md"
+              />
+            </div>
           )}
         </div>
       </div>
@@ -155,15 +179,30 @@ const HitComponent = ({ hit, sendEvent }: { hit: SearchHit, sendEvent: SendEvent
 
 const Hits = () => {
   const { hits, sendEvent } = useHits<SearchHit>();
+  const [products, setProducts] = useState<ShopperCatalogResource<ProductResponse[]> | undefined>(undefined);
+  const client = getEpccImplicitClient()
+
+  useEffect(() => {
+    const init = async () => {
+      setProducts(await getProductByIds(hits.map(hit => hit.objectID).join(","), client))
+    };
+    init();
+  }, [hits]);
 
   if (hits.length) {
     return (
       <ul className="list-none divide-y divide-dashed">
-        {hits.map((hit) => (
-          <li className="mb-4 pt-4" key={hit.objectID}>
-            <HitComponent hit={hit} sendEvent={sendEvent} />
-          </li>
-        ))}
+        {products && hits.map((hit) => {
+          const product: ProductResponse | undefined = products.data.find(prd => prd.id === hit.objectID)
+          if (product) {
+            return (
+              <li className="mb-4 pt-4" key={hit.objectID}>
+                <HitComponent hit={hit} product={product} sendEvent={sendEvent} />
+              </li>
+            )
+          }
+          return <></>
+        })}
       </ul>
 
     );
