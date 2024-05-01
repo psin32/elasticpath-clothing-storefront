@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { reviewsEnv } from "../../lib/resolve-reviews-field-env";
 import StarRatings from "react-star-ratings";
+import { SendEventForHits } from "instantsearch.js/es/lib/utils";
 
 const SearchBox = ({
   onChange,
@@ -97,13 +98,13 @@ const SearchBox = ({
   );
 };
 
-const HitComponent = ({ hit }: { hit: SearchHit }) => {
+const HitComponent = ({ hit, sendEvent }: { hit: SearchHit, sendEvent: SendEventForHits }) => {
   const { ep_price, ep_main_image_url, ep_name, ep_sku, objectID } = hit;
 
   const currencyPrice = ep_price?.[EP_CURRENCY_CODE];
 
   return (
-    <div className="group">
+    <div className="group" onClick={() => sendEvent('click', hit, 'Product Clicked')}>
       <div className="grid grid-cols-6 grid-rows-3 h-100 gap-2">
         <div className="col-span-2 row-span-3">
           {ep_main_image_url ? (
@@ -153,14 +154,14 @@ const HitComponent = ({ hit }: { hit: SearchHit }) => {
 };
 
 const Hits = () => {
-  const { hits } = useHits<SearchHit>();
+  const { hits, sendEvent } = useHits<SearchHit>();
 
   if (hits.length) {
     return (
       <ul className="list-none divide-y divide-dashed">
         {hits.map((hit) => (
           <li className="mb-4 pt-4" key={hit.objectID}>
-            <HitComponent hit={hit} />
+            <HitComponent hit={hit} sendEvent={sendEvent} />
           </li>
         ))}
       </ul>
@@ -176,7 +177,14 @@ export const SearchModal = (): JSX.Element => {
   const router = useRouter();
 
   return (
-    <InstantSearchNext searchClient={searchClient} indexName={algoliaEnvData.indexName}>
+    <InstantSearchNext
+      searchClient={searchClient}
+      indexName={algoliaEnvData.indexName}
+      insights={true}
+      future={{
+        preserveSharedStateOnUnmount: true,
+      }}
+    >
       <Configure filters="is_child:0" />
       <button
         className="bg-transparent hover:bg-gray-100 text-gray-800 font-normal py-2 px-4 rounded inline-flex items-center justify-left"

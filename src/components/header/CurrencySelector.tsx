@@ -8,6 +8,10 @@ import { getEpccImplicitClient } from '../../lib/epcc-implicit-client';
 import { Currency, ResourcePage } from '@moltin/sdk';
 import { getCookie, setCookie } from 'cookies-next';
 import { COOKIE_PREFIX_KEY } from '../../lib/resolve-cart-env';
+import aa from 'search-insights';
+import { algoliaEnvData } from '../../lib/resolve-algolia-env';
+import { ACCOUNT_MEMBER_TOKEN_COOKIE_NAME } from '../../lib/cookie-constants';
+import { getSelectedAccount, parseAccountMemberCredentialsCookieStr } from '../../lib/retrieve-account-member-credentials';
 
 const CurrencySelector = () => {
   const [selected, setSelected] = useState<Currency>()
@@ -15,6 +19,7 @@ const CurrencySelector = () => {
 
   const client = getEpccImplicitClient()
   const currencyInCookie = getCookie(`${COOKIE_PREFIX_KEY}_ep_currency`);
+  const cookieValue = getCookie(ACCOUNT_MEMBER_TOKEN_COOKIE_NAME)?.toString() || ""
 
   useEffect(() => {
     const init = async () => {
@@ -22,6 +27,13 @@ const CurrencySelector = () => {
       setCurrencies(response)
       const selectedCurrency = response.data.find(currency => currency.code === currencyInCookie)
       setSelected(selectedCurrency)
+      const accountMemberCookie = parseAccountMemberCredentialsCookieStr(cookieValue)
+      if (accountMemberCookie && algoliaEnvData.enabled) {
+        const selectedAccount = getSelectedAccount(accountMemberCookie);
+        aa('setAuthenticatedUserToken', selectedAccount.account_id);
+      } else {
+        aa('setAuthenticatedUserToken', undefined);
+      }
     };
     init();
   }, []);

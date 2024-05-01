@@ -47,6 +47,7 @@ export function Search({
         future={{
           preserveSharedStateOnUnmount: true,
         }}
+        insights={true}
       >
         {/* Virtual widgets are here as a workaround for this issue https://github.com/algolia/instantsearch/issues/5890 */}
         <VirtualSearchBox autoCapitalize="off" />
