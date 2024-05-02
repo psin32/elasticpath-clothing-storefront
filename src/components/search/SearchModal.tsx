@@ -25,6 +25,9 @@ import { getEpccImplicitClient } from "../../lib/epcc-implicit-client";
 import { getProductByIds } from "../../services/products";
 import StrikePrice from "../product/StrikePrice";
 import Price from "../product/Price";
+import { getCookie } from "cookies-next";
+import { getSelectedAccount, parseAccountMemberCredentialsCookieStr } from "../../lib/retrieve-account-member-credentials";
+import { ACCOUNT_MEMBER_TOKEN_COOKIE_NAME } from "../../lib/cookie-constants";
 
 const SearchBox = ({
   onChange,
@@ -214,6 +217,17 @@ export const SearchModal = (): JSX.Element => {
   const [searchValue, setSearchValue] = useState("");
   let [isOpen, setIsOpen] = useState(false)
   const router = useRouter();
+  const [accountId, setAccountId] = useState<string>();
+
+  useEffect(() => {
+    const cookieValue = getCookie(ACCOUNT_MEMBER_TOKEN_COOKIE_NAME)?.toString() || ""
+    const accountMemberCookie = cookieValue && parseAccountMemberCredentialsCookieStr(cookieValue)
+    if (accountMemberCookie && algoliaEnvData.enabled) {
+      const selectedAccount = getSelectedAccount(accountMemberCookie);
+      setAccountId(selectedAccount?.account_id)
+    }
+  }, []);
+
 
   return (
     <InstantSearchNext
@@ -225,6 +239,7 @@ export const SearchModal = (): JSX.Element => {
       }}
     >
       <Configure filters="is_child:0" />
+      {accountId && <Configure enablePersonalization={true} userToken={accountId} />}
       <button
         className="bg-transparent hover:bg-gray-100 text-gray-800 font-normal py-2 px-4 rounded inline-flex items-center justify-left"
         onClick={() => setIsOpen(true)}

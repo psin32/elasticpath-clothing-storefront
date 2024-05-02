@@ -14,6 +14,10 @@ import ProductHighlights from "./ProductHighlights";
 import Reviews from "../reviews/yotpo/Reviews";
 import { ResourcePage, SubscriptionOffering } from "@moltin/sdk";
 import SubscriptionOfferPlans from "./SubscriptionOfferPlans";
+import { useLookingSimilar } from '@algolia/recommend-react';
+import recommend from '@algolia/recommend';
+import { algoliaEnvData } from "../../lib/resolve-algolia-env";
+import AlgoliaCarousel from "../carousel/Carousel";
 
 interface ISimpleProductDetail {
   simpleProduct: SimpleProduct;
@@ -31,6 +35,9 @@ function SimpleProductDetail({
   );
 }
 
+const recommendClient = recommend(algoliaEnvData.appId, algoliaEnvData.apiKey);
+const indexName = algoliaEnvData.indexName
+
 function SimpleProductContainer({ offerings }: { offerings: any }): JSX.Element {
   const { product } = useSimpleProduct() as any;
   const { useScopedAddProductToCart, useScopedAddSubscriptionItemToCart } = useCart();
@@ -42,6 +49,12 @@ function SimpleProductContainer({ offerings }: { offerings: any }): JSX.Element 
   const {
     meta: { original_display_price },
   } = response;
+
+  const { recommendations } = useLookingSimilar({
+    recommendClient,
+    indexName,
+    objectIDs: [product.response.id],
+  }) as any;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -119,6 +132,16 @@ function SimpleProductContainer({ offerings }: { offerings: any }): JSX.Element 
           </form>
         </div>
       </div>
+      {recommendations?.filter((item: any) => item.is_child == 0 && item.objectID != product.baseProduct?.id)?.length > 0 && (
+        <div className="auc-Recommend mt-20">
+          <div className="uppercase font-bold text-xl mb-4 ml-2">
+            Similar looks
+          </div>
+          <ol className="auc-Recommend-list">
+            <AlgoliaCarousel items={recommendations.filter((item: any) => item.is_child == 0 && item.objectID != product.baseProduct?.id)}></AlgoliaCarousel>
+          </ol>
+        </div>
+      )}
       <Reviews product={response} />
     </div>
   );

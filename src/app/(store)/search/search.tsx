@@ -3,7 +3,7 @@ import { searchClient } from "../../../lib/search-client";
 import { InstantSearchNext } from "react-instantsearch-nextjs";
 import { algoliaEnvData } from "../../../lib/resolve-algolia-env";
 import { resolveAlgoliaRouting } from "../../../lib/algolia-search-routing";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { buildBreadcrumbLookup } from "../../../lib/build-breadcrumb-lookup";
 import { ShopperProduct, useStore } from "../../../react-shopper-hooks";
 import {
@@ -27,6 +27,9 @@ import { usePathname } from "next/navigation";
 import { ShopperCatalogResourcePage } from "@moltin/sdk";
 import SearchResultsAlgolia from "../../../components/search/SearchResultsAlgolia";
 import SearchResultsElasticPath from "../../../components/search/SearchResultsElasticPath";
+import { getCookie } from "cookies-next";
+import { ACCOUNT_MEMBER_TOKEN_COOKIE_NAME } from "../../../lib/cookie-constants";
+import { getSelectedAccount, parseAccountMemberCredentialsCookieStr } from "../../../lib/retrieve-account-member-credentials";
 
 export function Search({
   page,
@@ -37,6 +40,16 @@ export function Search({
   const lookup = buildBreadcrumbLookup(nav ?? []);
   const pathname = usePathname();
   const nodes = pathname.split("/search/")?.[1]?.split("/");
+  const [accountId, setAccountId] = useState<string>();
+
+  useEffect(() => {
+    const cookieValue = getCookie(ACCOUNT_MEMBER_TOKEN_COOKIE_NAME)?.toString() || ""
+    const accountMemberCookie = cookieValue && parseAccountMemberCredentialsCookieStr(cookieValue)
+    if (accountMemberCookie && algoliaEnvData.enabled) {
+      const selectedAccount = getSelectedAccount(accountMemberCookie);
+      setAccountId(selectedAccount?.account_id)
+    }
+  }, []);
 
   return (
     algoliaEnvData.enabled ? (
@@ -58,6 +71,7 @@ export function Search({
         <VirtualHierarchicalMenu attributes={hierarchicalAttributes} />
         <SearchResultsAlgolia lookup={lookup} />
         <Configure filters="is_child:0" />
+        {accountId && <Configure enablePersonalization={true} userToken={accountId} />}
       </InstantSearchNext>
     ) : (
       <SearchResultsElasticPath page={page} nodes={nodes} />

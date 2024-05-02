@@ -25,3 +25,8 @@ body {
   display: none !important;
   outline-width: 0 !important;
 }
+
+.image-slider-container .slick-prev:before,
+.image-slider-container .slick-next:before {
+  color: black;
+}

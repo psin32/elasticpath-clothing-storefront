@@ -14,7 +14,10 @@ import PersonalisedInfo from "../PersonalisedInfo";
 import ProductHighlights from "../ProductHighlights";
 import Reviews from "../../reviews/yotpo/Reviews";
 import { ResourcePage, SubscriptionOffering } from "@moltin/sdk";
-import GeneralInfo from "../GeneralInfo";
+import { useLookingSimilar } from '@algolia/recommend-react';
+import recommend from '@algolia/recommend';
+import { algoliaEnvData } from "../../../lib/resolve-algolia-env";
+import AlgoliaCarousel from "../../carousel/Carousel";
 
 export const VariationProductDetail = ({
   variationProduct,
@@ -30,6 +33,9 @@ export const VariationProductDetail = ({
   );
 };
 
+const recommendClient = recommend(algoliaEnvData.appId, algoliaEnvData.apiKey);
+const indexName = algoliaEnvData.indexName
+
 export function VariationProductContainer({ offerings }: { offerings: ResourcePage<SubscriptionOffering, never> }): JSX.Element {
   const { product, selectedOptions } = useVariationProduct() as any;
   const { useScopedAddProductToCart } = useCart();
@@ -40,6 +46,12 @@ export function VariationProductContainer({ offerings }: { offerings: ResourcePa
   const {
     meta: { original_display_price },
   } = response;
+
+  const { recommendations } = useLookingSimilar({
+    recommendClient,
+    indexName,
+    objectIDs: [product.response.id],
+  }) as any;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -119,7 +131,16 @@ export function VariationProductContainer({ offerings }: { offerings: ResourcePa
           </form>
         </div>
       </div>
-      {/* {extensions && <GeneralInfo extensions={extensions} />} */}
+      {recommendations?.filter((item: any) => item.is_child == 0 && item.objectID != product.baseProduct?.id)?.length > 0 && (
+        <div className="auc-Recommend mt-20">
+          <div className="uppercase font-bold text-xl mb-4 ml-2">
+            Similar looks
+          </div>
+          <ol className="auc-Recommend-list">
+            <AlgoliaCarousel items={recommendations.filter((item: any) => item.is_child == 0 && item.objectID != product.baseProduct?.id)}></AlgoliaCarousel>
+          </ol>
+        </div>
+      )}
       <Reviews product={response} />
     </div>
   );

@@ -27,9 +27,10 @@ const CurrencySelector = () => {
       setCurrencies(response)
       const selectedCurrency = response.data.find(currency => currency.code === currencyInCookie)
       setSelected(selectedCurrency)
-      const accountMemberCookie = parseAccountMemberCredentialsCookieStr(cookieValue)
+      const accountMemberCookie = cookieValue && parseAccountMemberCredentialsCookieStr(cookieValue)
       if (accountMemberCookie && algoliaEnvData.enabled) {
         const selectedAccount = getSelectedAccount(accountMemberCookie);
+        aa('setUserToken', selectedAccount.account_id);
         aa('setAuthenticatedUserToken', selectedAccount.account_id);
       } else {
         aa('setAuthenticatedUserToken', undefined);
