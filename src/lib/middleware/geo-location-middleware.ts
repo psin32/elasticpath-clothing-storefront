@@ -11,7 +11,9 @@ export async function geoLocationMiddleware(
 
   const geoLocation = req.geo
 
-  if (req.cookies.get(`${cookiePrefixKey}_ep_cart`)) {
+  const existingValue = req.cookies.get(`${cookiePrefixKey}_ep_country`)
+
+  if (existingValue && existingValue?.value == geoLocation) {
     return {
       shouldReturn: false,
       resultingResponse: previousResponse,
@@ -20,7 +22,10 @@ export async function geoLocationMiddleware(
 
   previousResponse.cookies.set(
     `${cookiePrefixKey}_ep_country`,
-    geoLocation?.country || "GB"
+    geoLocation?.country || "GB",
+    {
+      sameSite: "strict",
+    },
   );
 
   // Apply those cookies to the request
