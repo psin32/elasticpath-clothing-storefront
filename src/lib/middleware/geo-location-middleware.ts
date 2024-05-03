@@ -23,10 +23,10 @@ export async function geoLocationMiddleware(
 
   const country = req.cookies.get(`${cookiePrefixKey}_ep_country`)?.value
 
-  if (geoLocation && geoLocation != country) {
+  if (geoLocation && geoLocation.country != country) {
     const data = await getCatalogMenu()
     const content = data?.story?.content?.body?.find((content: any) => content.component === "catalog_menu")
-    const catalog = content?.catalogs?.find((catalog: any) => catalog.country === geoLocation)
+    const catalog = content?.catalogs?.find((catalog: any) => catalog.country === geoLocation?.country)
     if (catalog) {
       previousResponse.cookies.set(
         `${cookiePrefixKey}_ep_catalog_tag`,
