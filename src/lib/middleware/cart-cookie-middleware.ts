@@ -14,6 +14,7 @@ export async function cartCookieMiddleware(
   req: NextRequest,
   previousResponse: NextResponse,
 ): Promise<NextResponseFlowResult> {
+  console.log("geo", req.geo)
   if (typeof cookiePrefixKey !== "string") {
     return {
       shouldReturn: true,
