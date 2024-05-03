@@ -15,7 +15,7 @@ export async function cartCookieMiddleware(
   previousResponse: NextResponse,
 ): Promise<NextResponseFlowResult> {
   const data = await fetch("https://api.ipregistry.co/?key=2f95k8zhawebura3")
-  console.log("geo", data.json())
+  console.log("geo", await data.json())
   console.log("oldgeo", req.geo)
   if (typeof cookiePrefixKey !== "string") {
     return {
