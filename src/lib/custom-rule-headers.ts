@@ -8,9 +8,9 @@ export function resolveEpccCustomRuleHeaders():
 
   const catalogTag = getCookie(`${COOKIE_PREFIX_KEY}_ep_catalog_tag`);
 
-  if (typeof catalogTag != "string") {
-    setCookie(`${COOKIE_PREFIX_KEY}_ep_catalog_tag`, "__ep__default")
-  }
+  // if (typeof catalogTag != "string") {
+  //   setCookie(`${COOKIE_PREFIX_KEY}_ep_catalog_tag`, "__ep__default")
+  // }
 
   const { epContextTag, epChannel } = {
     epContextTag: process.env.NEXT_PUBLIC_CONTEXT_TAG,
