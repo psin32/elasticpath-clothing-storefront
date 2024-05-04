@@ -1,4 +1,4 @@
-const version = "preview"
+const version = "published"
 
 export const getTopNavigationContent = async (locale?: string, catalog?: string, apiKey?: string) => {
     const headerResponse = await fetch(`https://api-us.storyblok.com/v2/cdn/stories/navigation/${catalog}/menu?token=${apiKey? apiKey : process.env.NEXT_PUBLIC_STORYBLOK_API_KEY}&version=${version}&language=${locale}`, { next: { revalidate: 10 } });
@@ -21,6 +21,6 @@ export const getProductContent = async (productId: string, locale?: string, apiK
 }
 
 export const getStoryblokContent = async (slug: string, apiKey?: string, locale?: string) => {
-    const headerResponse = await fetch(`https://api-us.storyblok.com/v2/cdn/stories/${slug}?token=${apiKey? apiKey : process.env.NEXT_PUBLIC_STORYBLOK_API_KEY}&version=${version}&language=${locale}`, { next: { revalidate: 10 } });
+    const headerResponse = await fetch(`https://api-us.storyblok.com/v2/cdn/stories/${slug}?token=${apiKey? apiKey : process.env.NEXT_PUBLIC_STORYBLOK_API_KEY}&version=${version}&language=${locale}`, { next: { revalidate: 0 } });
     return await headerResponse.json();
 }
