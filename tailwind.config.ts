@@ -60,6 +60,7 @@ export default {
     require("@tailwindcss/forms"),
     require("tailwindcss-animate"),
     require("tailwind-clip-path"),
+    require('flowbite/plugin'),
     plugin(({ matchUtilities, theme }) => {
       matchUtilities(
         {

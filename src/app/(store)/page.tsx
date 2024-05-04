@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import Content from "../../components/storyblok/Content";
 import { COOKIE_PREFIX_KEY } from "../../lib/resolve-cart-env";
 import { getStoryblokContent } from "../../services/storyblok";
+import Script from "next/script";
 
 export default async function Home() {
 
@@ -20,6 +21,7 @@ export default async function Home() {
 
   return (
     <div>
+      <Script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js" strategy="beforeInteractive"></Script>
       <Content content={content}></Content>
       <div className="grid gap-12 p-[2rem] md:p-[4em]">
         <div className="gap-3 p-8 md:p-16">
