@@ -1,15 +1,16 @@
-import PromotionBanner from "../../components/promotion-banner/PromotionBanner";
 import FeaturedProducts from "../../components/featured-products/FeaturedProducts";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
-import { getHomePageContent } from "../../services/storyblok";
 import Content from "../../components/storyblok/Content";
+import { COOKIE_PREFIX_KEY } from "../../lib/resolve-cart-env";
+import { getStoryblokContent } from "../../services/storyblok";
 
 export default async function Home() {
 
   const cookieStore = cookies();
   const locale = cookieStore.get("locale")?.value || "en";
-  const content = await getHomePageContent(locale)
+  const apiKey = cookieStore.get(`${COOKIE_PREFIX_KEY}_ep_storyblok_api`)?.value;
+  const content = await getStoryblokContent("home", apiKey, locale)
 
   const promotion = {
     title: "Your Elastic Path storefront",
