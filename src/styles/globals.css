@@ -30,3 +30,7 @@ body {
 .image-slider-container .slick-next:before {
   color: black;
 }
+
+.slick-list>div {
+  margin-left: 0;
+}

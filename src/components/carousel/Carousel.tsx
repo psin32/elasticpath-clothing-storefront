@@ -28,7 +28,7 @@ const AlgoliaCarousel = ({ items }: AlgoliaCarouselProps) => {
         dots: true,
         infinite: false,
         speed: 500,
-        slidesToShow: 4,
+        slidesToShow: 3,
         slidesToScroll: 1,
         responsive: [
             {
@@ -52,9 +52,9 @@ const AlgoliaCarousel = ({ items }: AlgoliaCarouselProps) => {
     };
 
     return (
-        <div className="image-slider-container">
+        <div className='slick-list'>
             {items.length > 1 && (
-                <Slider {...settings}>
+                <Slider {...settings} className='md:w-2/3'>
                     {products && items.map((item, index) => {
                         const product: ProductResponse | undefined = products.data.find(prd => prd.id === item.objectID)
                         return (

@@ -5,19 +5,34 @@ import { Button } from "../../../components/button/Button";
 import Link from "next/link";
 import { LockClosedIcon } from "@heroicons/react/24/solid";
 import { useCart } from "../../../react-shopper-hooks";
+import { useEffect, useState } from "react";
+import { getEpccImplicitClient } from "../../../lib/epcc-implicit-client";
+import { ProductResponse, ShopperCatalogResource } from "@moltin/sdk";
+import { getProductByIds } from "../../../services/products";
 
 export function CartView() {
   const { state } = useCart();
+  const [products, setProducts] = useState<ShopperCatalogResource<ProductResponse[]>>()
+  const client = getEpccImplicitClient()
+
+  useEffect(() => {
+    const init = async () => {
+      setProducts(await getProductByIds(state?.items.map(item => item.product_id).join(",") || "", client))
+    };
+    init();
+  }, [state?.items]);
+
+
   return (
     <>
-      {state?.items.length && state.items.length > 0 ? (
+      {products && state?.items.length && state.items.length > 0 ? (
         <div className="flex flex-col lg:flex-row flex-1 self-stretch">
           {/* Main Content */}
           <div className="flex justify-center self-stretch items-start gap-2 flex-only-grow">
             <div className="flex flex-col gap-10 p-5 lg:p-24 w-full">
               <h1 className="text-4xl font-medium">Your Bag</h1>
               {/* Cart Items */}
-              <YourBag />
+              <YourBag state={state} products={products} />
             </div>
           </div>
           {/* Sidebar */}
