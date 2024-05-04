@@ -13,7 +13,7 @@ const HeroBanner = ({ blok }: any) => {
             alt=""
           />
           <div className="relative my-auto mx-auto max-w-xl lg:mx-0 h-[250px] text-left">
-            <blockquote className="mt-6 text-xl sm:text-xl sm:leading-8 text-gray-950 bg-white p-8">
+            <blockquote className="mt-6 text-xl sm:text-xl sm:leading-8 p-8" style={{backgroundColor: blok.bg_color?.color, color: blok.text_color?.color}}>
               <div className="font-semibold text-4xl mb-4">{blok.title}</div>
               <p>
                 {blok.description}
@@ -21,7 +21,7 @@ const HeroBanner = ({ blok }: any) => {
               {blok.button_text && blok.link.url && (
                 <div className="mt-8">
                   <a href={blok.link.url} role="button" data-te-ripple-init data-te-ripple-color="primary"
-                    className="rounded-full border-transparent px-8 py-4 text-sm font-medium uppercase leading-normal text-black  drop-shadow-2x bg-brand-primary hover:bg-brand-highlight">
+                    className="rounded-full border-transparent px-8 py-4 text-sm font-medium uppercase leading-normal drop-shadow-2x" style={{backgroundColor: blok.button_color?.color, color: blok.button_text_color?.color}}>
                     {blok.button_text}
                   </a>
                 </div>
