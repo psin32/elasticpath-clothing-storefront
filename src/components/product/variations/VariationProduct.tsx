@@ -14,7 +14,7 @@ import PersonalisedInfo from "../PersonalisedInfo";
 import ProductHighlights from "../ProductHighlights";
 import Reviews from "../../reviews/yotpo/Reviews";
 import { ResourcePage, SubscriptionOffering } from "@moltin/sdk";
-import { useLookingSimilar } from '@algolia/recommend-react';
+import { useFrequentlyBoughtTogether, useLookingSimilar } from '@algolia/recommend-react';
 import recommend from '@algolia/recommend';
 import { algoliaEnvData } from "../../../lib/resolve-algolia-env";
 import AlgoliaCarousel from "../../carousel/Carousel";
@@ -47,11 +47,19 @@ export function VariationProductContainer({ offerings }: { offerings: ResourcePa
     meta: { original_display_price },
   } = response;
 
-  const { recommendations } = useLookingSimilar({
+  const { recommendations: lookingSimilar } = useLookingSimilar({
     recommendClient,
     indexName,
     objectIDs: [product.response.id],
   }) as any;
+
+  const { recommendations: frequentlyBought } = useFrequentlyBoughtTogether({
+    recommendClient,
+    indexName,
+    objectIDs: [product.baseProduct?.id],
+    maxRecommendations: 5,
+  }) as any;
+
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -131,13 +139,23 @@ export function VariationProductContainer({ offerings }: { offerings: ResourcePa
           </form>
         </div>
       </div>
-      {recommendations?.filter((item: any) => item.is_child == 0 && item.objectID != product.baseProduct?.id)?.length > 0 && (
+      {frequentlyBought?.filter((item: any) => item.is_child == 0 && item.objectID != product.baseProduct?.id)?.length > 0 && (
+        <div className="auc-Recommend mt-20">
+          <div className="uppercase font-bold text-xl mb-4 ml-2">
+            Frequently Bought Together
+          </div>
+          <ol className="auc-Recommend-list">
+            <AlgoliaCarousel items={frequentlyBought.filter((item: any) => item.is_child == 0 && item.objectID != product.baseProduct?.id)}></AlgoliaCarousel>
+          </ol>
+        </div>
+      )}
+      {lookingSimilar?.filter((item: any) => item.is_child == 0 && item.objectID != product.baseProduct?.id)?.length > 0 && (
         <div className="auc-Recommend mt-20">
           <div className="uppercase font-bold text-xl mb-4 ml-2">
             Similar looks
           </div>
           <ol className="auc-Recommend-list">
-            <AlgoliaCarousel items={recommendations.filter((item: any) => item.is_child == 0 && item.objectID != product.baseProduct?.id)}></AlgoliaCarousel>
+            <AlgoliaCarousel items={lookingSimilar.filter((item: any) => item.is_child == 0 && item.objectID != product.baseProduct?.id)}></AlgoliaCarousel>
           </ol>
         </div>
       )}
