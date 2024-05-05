@@ -24,7 +24,7 @@ export default function HitComponentAlgolia({ hit, sendEvent, product }: { hit: 
           data-testid={objectID}
           onClick={() => sendEvent && sendEvent('click', hit, 'PLP: Product Clicked')}
         >
-          <div className="relative bg-[#f6f7f9] overflow-hidden rounded-t-lg border-l border-r border-t pb-[100%]">
+          <div className="relative overflow-hidden rounded-t-lg border-l border-r border-t pb-[100%]">
             {ep_main_image_url ? (
               <Image
                 className="relative h-full w-full transition duration-300 ease-in-out group-hover:scale-105"
@@ -74,14 +74,14 @@ export default function HitComponentAlgolia({ hit, sendEvent, product }: { hit: 
                   )}
                   {original_display_price && (
                     <StrikePrice
-                      price={original_display_price.without_tax.formatted}
-                      currency={original_display_price.without_tax.currency}
+                      price={original_display_price?.without_tax?.formatted ? original_display_price?.without_tax?.formatted : original_display_price.with_tax.formatted}
+                      currency={original_display_price.without_tax?.currency ? original_display_price?.without_tax?.currency : original_display_price.with_tax.currency}
                       size="text-xl"
                     />
                   )}
                   <Price
-                    price={display_price.without_tax.formatted}
-                    currency={display_price.without_tax.currency}
+                    price={display_price?.without_tax?.formatted ? display_price?.without_tax?.formatted : display_price.with_tax.formatted}
+                    currency={display_price?.without_tax?.currency ? display_price?.without_tax?.currency : display_price.with_tax.currency}
                     original_display_price={original_display_price}
                     size="text-xl"
                   />
