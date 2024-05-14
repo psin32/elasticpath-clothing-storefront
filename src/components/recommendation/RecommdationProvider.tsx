@@ -8,11 +8,7 @@ import { getProductByNodeId } from "../../services/products";
  */
 export async function getRecommendationData(): Promise<any> {
     const client = getServerSideCredentialsClient()
-    const orderResponse: any = await client.Orders.Limit(100).Filter({
-        eq: {
-            status: "complete"
-        },
-    }).With("items").All();
+    const orderResponse: any = await client.Orders.Limit(100).With("items").All();
     const orderCount: any = {}
     orderResponse?.included.items.filter((item: any) => item.product_id).map((item: any) => {
         if (!(item?.product_id in orderCount)) {
