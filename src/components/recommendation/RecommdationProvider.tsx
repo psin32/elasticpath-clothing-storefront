@@ -51,22 +51,22 @@ export async function recommendSimilarProducts(response: ShopperCatalogResource<
     const products = response.data;
     const targetProduct: any = await getProductById(products, productId);
 
-    if (!targetProduct) {
-        throw new Error(`Product with ID ${productId} not found`);
+    if (targetProduct) {
+        const targetTags = targetProduct.attributes.tags;
+        const similarityScores: { id: string; score: number }[] = products
+            .filter(product => product.id !== productId)
+            .map((product: any) => ({
+                id: product.id,
+                score: getMatchingTagsCount(targetTags, product.attributes.tags)
+            }));
+
+        const maxScore = Math.max(...similarityScores.map(scoreObj => scoreObj.score));
+        const mostSimilarProducts = similarityScores
+            .filter(scoreObj => scoreObj.score === maxScore)
+            .map(scoreObj => scoreObj.id);
+
+        return mostSimilarProducts;
+    } else {
+        return []
     }
-
-    const targetTags = targetProduct.attributes.tags;
-    const similarityScores: { id: string; score: number }[] = products
-        .filter(product => product.id !== productId)
-        .map((product: any) => ({
-            id: product.id,
-            score: getMatchingTagsCount(targetTags, product.attributes.tags)
-        }));
-
-    const maxScore = Math.max(...similarityScores.map(scoreObj => scoreObj.score));
-    const mostSimilarProducts = similarityScores
-        .filter(scoreObj => scoreObj.score === maxScore)
-        .map(scoreObj => scoreObj.id);
-
-    return mostSimilarProducts;
 }
