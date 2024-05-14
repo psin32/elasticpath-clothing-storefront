@@ -115,3 +115,11 @@ export async function getNodesByIds(
   }
   return nodes
 }
+
+
+export async function getProductByNodeId(
+  nodeId: string,
+  client: EPCCClient,
+): Promise<ShopperCatalogResource<ProductResponse[]>> {
+  return client.ShopperCatalog.Nodes.GetNodeProducts({nodeId})
+}
