@@ -5,10 +5,10 @@ import Content from "../../components/storyblok/Content";
 import { COOKIE_PREFIX_KEY } from "../../lib/resolve-cart-env";
 import { getStoryblokContent } from "../../services/storyblok";
 import Script from "next/script";
-import { getRecommendationData } from "../../components/recommendation/RecommdationProvider";
-import { getProductByIds } from "../../services/products";
-import { getServerSideCredentialsClient } from "../../lib/epcc-server-side-credentials-client";
-import RecommendationCarousel from "../../components/carousel/RecommendationCarousel";
+// import { getRecommendationData } from "../../components/recommendation/RecommdationProvider";
+// import { getProductByIds } from "../../services/products";
+// import { getServerSideCredentialsClient } from "../../lib/epcc-server-side-credentials-client";
+// import RecommendationCarousel from "../../components/carousel/RecommendationCarousel";
 
 export default async function Home() {
 
@@ -23,9 +23,9 @@ export default async function Home() {
       "This marks the beginning, embark on the journey of crafting something truly extraordinary, uniquely yours.",
   };
 
-  const client = getServerSideCredentialsClient()
-  const recommedation = await getRecommendationData()
-  const recommedationProducts = await getProductByIds(recommedation.join(","), client)
+  // const client = getServerSideCredentialsClient()
+  // const recommedation = await getRecommendationData()
+  // const recommedationProducts = await getProductByIds(recommedation.join(","), client)
 
 
   return (
@@ -36,14 +36,14 @@ export default async function Home() {
         <div className="gap-3 p-8 md:p-16">
           <div>
             <Suspense>
-              {/* <FeaturedProducts
+              <FeaturedProducts
                 title="Trending Products"
                 linkProps={{
                   link: `/search`,
                   text: "See all products",
                 }}
-              /> */}
-              {recommedationProducts.data.length > 0 && (
+              />
+              {/* {recommedationProducts.data.length > 0 && (
                 <>
                   <div className="uppercase font-bold text-xl mb-4 ml-2">
                     Trending Products
@@ -51,7 +51,7 @@ export default async function Home() {
 
                   <RecommendationCarousel products={recommedationProducts}></RecommendationCarousel>
                 </>
-              )}
+              )} */}
 
             </Suspense>
           </div>

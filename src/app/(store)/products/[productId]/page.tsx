@@ -6,8 +6,8 @@ import { notFound } from "next/navigation";
 import React from "react";
 import { Node } from "@moltin/sdk";
 import { parseProductResponse } from "../../../../shopper-common/src";
-import RecommendationCarousel from "../../../../components/carousel/RecommendationCarousel";
-import { getRecommendationByTag, getRecommendationData } from "../../../../components/recommendation/RecommdationProvider";
+// import RecommendationCarousel from "../../../../components/carousel/RecommendationCarousel";
+// import { getRecommendationByTag, getRecommendationData } from "../../../../components/recommendation/RecommdationProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -47,11 +47,11 @@ export default async function ProductPage({ params }: Props) {
   const breadcrumb: Node[] | undefined = await getNodesByIds(nodeIds, client)
 
   const shopperProduct = await parseProductResponse(product, client);
-  const tagResponse = await getRecommendationByTag(breadCrumNode, product.data.attributes.base_product_id || params.productId)
-  const recommedationTagProducts = await getProductByIds(tagResponse.join(","), client)
+  // const tagResponse = await getRecommendationByTag(breadCrumNode, product.data.attributes.base_product_id || params.productId)
+  // const recommedationTagProducts = await getProductByIds(tagResponse.join(","), client)
 
-  const staticRecommendation: any = product.data.attributes.extensions?.["products(recommendation)"] && Object.values(product.data.attributes.extensions?.["products(recommendation)"])?.flat();
-  const staticRecommendationProducts = staticRecommendation && await getProductByIds(staticRecommendation?.join(","), client)
+  // const staticRecommendation: any = product.data.attributes.extensions?.["products(recommendation)"] && Object.values(product.data.attributes.extensions?.["products(recommendation)"])?.flat();
+  // const staticRecommendationProducts = staticRecommendation && await getProductByIds(staticRecommendation?.join(","), client)
 
   return (
     <div
@@ -59,7 +59,7 @@ export default async function ProductPage({ params }: Props) {
     >
       <ProductProvider>
         <ProductDetailsComponent product={shopperProduct} breadcrumb={breadcrumb} offerings={offerings} />
-        <div className="mt-10 ml-28">
+        {/* <div className="mt-10 ml-28">
           {staticRecommendationProducts?.data.length > 0 && (
             <>
               <div className="uppercase font-bold text-xl mb-4 ml-2">
@@ -80,7 +80,7 @@ export default async function ProductPage({ params }: Props) {
               <RecommendationCarousel products={recommedationTagProducts}></RecommendationCarousel>
             </>
           )}
-        </div>
+        </div> */}
       </ProductProvider>
     </div>
   );
