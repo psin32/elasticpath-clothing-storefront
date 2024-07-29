@@ -29,7 +29,10 @@ import SearchResultsAlgolia from "../../../components/search/SearchResultsAlgoli
 import SearchResultsElasticPath from "../../../components/search/SearchResultsElasticPath";
 import { getCookie } from "cookies-next";
 import { ACCOUNT_MEMBER_TOKEN_COOKIE_NAME } from "../../../lib/cookie-constants";
-import { getSelectedAccount, parseAccountMemberCredentialsCookieStr } from "../../../lib/retrieve-account-member-credentials";
+import {
+  getSelectedAccount,
+  parseAccountMemberCredentialsCookieStr,
+} from "../../../lib/retrieve-account-member-credentials";
 
 export function Search({
   page,
@@ -43,39 +46,41 @@ export function Search({
   const [accountId, setAccountId] = useState<string>();
 
   useEffect(() => {
-    const cookieValue = getCookie(ACCOUNT_MEMBER_TOKEN_COOKIE_NAME)?.toString() || ""
-    const accountMemberCookie = cookieValue && parseAccountMemberCredentialsCookieStr(cookieValue)
+    const cookieValue =
+      getCookie(ACCOUNT_MEMBER_TOKEN_COOKIE_NAME)?.toString() || "";
+    const accountMemberCookie =
+      cookieValue && parseAccountMemberCredentialsCookieStr(cookieValue);
     if (accountMemberCookie && algoliaEnvData.enabled) {
       const selectedAccount = getSelectedAccount(accountMemberCookie);
-      setAccountId(selectedAccount?.account_id)
+      setAccountId(selectedAccount?.account_id);
     }
   }, []);
 
-  return (
-    algoliaEnvData.enabled ? (
-      <InstantSearchNext
-        indexName={algoliaEnvData.indexName}
-        searchClient={searchClient}
-        routing={resolveAlgoliaRouting()}
-        future={{
-          preserveSharedStateOnUnmount: true,
-        }}
-        insights={true}
-      >
-        {/* Virtual widgets are here as a workaround for this issue https://github.com/algolia/instantsearch/issues/5890 */}
-        <VirtualSearchBox autoCapitalize="off" />
-        <VirtualPagination />
-        <VirtualSortBy items={sortByItems} />
-        <VirtualRangeInput attribute="ep_price" />
-        <VirtualRefinementList attribute="price" />
-        <VirtualHierarchicalMenu attributes={hierarchicalAttributes} />
-        <SearchResultsAlgolia lookup={lookup} />
-        <Configure filters="is_child:0" />
-        {accountId && <Configure enablePersonalization={true} userToken={accountId} />}
-      </InstantSearchNext>
-    ) : (
-      <SearchResultsElasticPath page={page} nodes={nodes} />
-    )
+  return algoliaEnvData.enabled ? (
+    <InstantSearchNext
+      indexName={algoliaEnvData.indexName}
+      searchClient={searchClient}
+      routing={resolveAlgoliaRouting()}
+      future={{
+        preserveSharedStateOnUnmount: true,
+      }}
+      insights={true}
+    >
+      {/* Virtual widgets are here as a workaround for this issue https://github.com/algolia/instantsearch/issues/5890 */}
+      <VirtualSearchBox autoCapitalize="off" />
+      <VirtualPagination />
+      <VirtualSortBy items={sortByItems} />
+      <VirtualRangeInput attribute="ep_price" />
+      <VirtualRefinementList attribute="price" />
+      <VirtualHierarchicalMenu attributes={hierarchicalAttributes} />
+      <SearchResultsAlgolia lookup={lookup} />
+      <Configure filters="is_child:0" />
+      {accountId && (
+        <Configure enablePersonalization={true} userToken={accountId} />
+      )}
+    </InstantSearchNext>
+  ) : (
+    <SearchResultsElasticPath page={page} nodes={nodes} />
   );
 }
 

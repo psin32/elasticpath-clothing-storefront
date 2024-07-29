@@ -1,11 +1,7 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
-import {
-  Configure,
-  useHits,
-  useSearchBox,
-} from "react-instantsearch";
+import { Configure, useHits, useSearchBox } from "react-instantsearch";
 import { InstantSearchNext } from "react-instantsearch-nextjs";
 import NoResults from "./NoResults";
 import { SearchHit } from "./SearchHit";
@@ -26,7 +22,10 @@ import { getProductByIds } from "../../services/products";
 import StrikePrice from "../product/StrikePrice";
 import Price from "../product/Price";
 import { getCookie } from "cookies-next";
-import { getSelectedAccount, parseAccountMemberCredentialsCookieStr } from "../../lib/retrieve-account-member-credentials";
+import {
+  getSelectedAccount,
+  parseAccountMemberCredentialsCookieStr,
+} from "../../lib/retrieve-account-member-credentials";
 import { ACCOUNT_MEMBER_TOKEN_COOKIE_NAME } from "../../lib/cookie-constants";
 
 const SearchBox = ({
@@ -46,7 +45,7 @@ const SearchBox = ({
       }
     },
     400,
-    [search]
+    [search],
   );
 
   return (
@@ -102,11 +101,18 @@ const SearchBox = ({
         </button>
       )}
     </div>
-
   );
 };
 
-const HitComponent = ({ hit, sendEvent, product }: { hit: SearchHit, sendEvent: SendEventForHits, product: ProductResponse }) => {
+const HitComponent = ({
+  hit,
+  sendEvent,
+  product,
+}: {
+  hit: SearchHit;
+  sendEvent: SendEventForHits;
+  product: ProductResponse;
+}) => {
   const { ep_price, ep_main_image_url, ep_name, ep_sku, objectID } = hit;
 
   const {
@@ -114,7 +120,10 @@ const HitComponent = ({ hit, sendEvent, product }: { hit: SearchHit, sendEvent: 
   } = product;
 
   return (
-    <div className="group" onClick={() => sendEvent('click', hit, 'Autocomplete: Product Clicked')}>
+    <div
+      className="group"
+      onClick={() => sendEvent("click", hit, "Autocomplete: Product Clicked")}
+    >
       <div className="grid grid-cols-6 grid-rows-3 h-100 gap-2">
         <div className="col-span-2 row-span-3">
           {ep_main_image_url ? (
@@ -161,16 +170,31 @@ const HitComponent = ({ hit, sendEvent, product }: { hit: SearchHit, sendEvent: 
               )}
               {original_display_price && (
                 <StrikePrice
-                  price={original_display_price.without_tax.formatted}
-                  currency={original_display_price.without_tax.currency}
-                  size="text-md"
+                  price={
+                    original_display_price?.without_tax?.formatted
+                      ? original_display_price?.without_tax?.formatted
+                      : original_display_price.with_tax.formatted
+                  }
+                  currency={
+                    original_display_price.without_tax?.currency
+                      ? original_display_price?.without_tax?.currency
+                      : original_display_price.with_tax.currency
+                  }
                 />
               )}
               <Price
-                price={display_price.without_tax.formatted}
-                currency={display_price.without_tax.currency}
+                price={
+                  display_price?.without_tax?.formatted
+                    ? display_price?.without_tax?.formatted
+                    : display_price.with_tax.formatted
+                }
+                currency={
+                  display_price?.without_tax?.currency
+                    ? display_price?.without_tax?.currency
+                    : display_price.with_tax.currency
+                }
                 original_display_price={original_display_price}
-                size="text-md"
+                size="text-2xl"
               />
             </div>
           )}
@@ -182,12 +206,19 @@ const HitComponent = ({ hit, sendEvent, product }: { hit: SearchHit, sendEvent: 
 
 const Hits = () => {
   const { hits, sendEvent } = useHits<SearchHit>();
-  const [products, setProducts] = useState<ShopperCatalogResource<ProductResponse[]> | undefined>(undefined);
-  const client = getEpccImplicitClient()
+  const [products, setProducts] = useState<
+    ShopperCatalogResource<ProductResponse[]> | undefined
+  >(undefined);
+  const client = getEpccImplicitClient();
 
   useEffect(() => {
     const init = async () => {
-      setProducts(await getProductByIds(hits.map(hit => hit.objectID).join(","), client))
+      setProducts(
+        await getProductByIds(
+          hits.map((hit) => hit.objectID).join(","),
+          client,
+        ),
+      );
     };
     init();
   }, [hits]);
@@ -195,19 +226,25 @@ const Hits = () => {
   if (hits.length) {
     return (
       <ul className="list-none divide-y divide-dashed">
-        {products && hits.map((hit) => {
-          const product: ProductResponse | undefined = products.data.find(prd => prd.id === hit.objectID)
-          if (product) {
-            return (
-              <li className="mb-4 pt-4" key={hit.objectID}>
-                <HitComponent hit={hit} product={product} sendEvent={sendEvent} />
-              </li>
-            )
-          }
-          return <></>
-        })}
+        {products &&
+          hits.map((hit) => {
+            const product: ProductResponse | undefined = products.data.find(
+              (prd) => prd.id === hit.objectID,
+            );
+            if (product) {
+              return (
+                <li className="mb-4 pt-4" key={hit.objectID}>
+                  <HitComponent
+                    hit={hit}
+                    product={product}
+                    sendEvent={sendEvent}
+                  />
+                </li>
+              );
+            }
+            return <></>;
+          })}
       </ul>
-
     );
   }
   return <NoResults />;
@@ -215,19 +252,20 @@ const Hits = () => {
 
 export const SearchModal = (): JSX.Element => {
   const [searchValue, setSearchValue] = useState("");
-  let [isOpen, setIsOpen] = useState(false)
+  let [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const [accountId, setAccountId] = useState<string>();
 
   useEffect(() => {
-    const cookieValue = getCookie(ACCOUNT_MEMBER_TOKEN_COOKIE_NAME)?.toString() || ""
-    const accountMemberCookie = cookieValue && parseAccountMemberCredentialsCookieStr(cookieValue)
+    const cookieValue =
+      getCookie(ACCOUNT_MEMBER_TOKEN_COOKIE_NAME)?.toString() || "";
+    const accountMemberCookie =
+      cookieValue && parseAccountMemberCredentialsCookieStr(cookieValue);
     if (accountMemberCookie && algoliaEnvData.enabled) {
       const selectedAccount = getSelectedAccount(accountMemberCookie);
-      setAccountId(selectedAccount?.account_id)
+      setAccountId(selectedAccount?.account_id);
     }
   }, []);
-
 
   return (
     <InstantSearchNext
@@ -239,7 +277,9 @@ export const SearchModal = (): JSX.Element => {
       }}
     >
       <Configure filters="is_child:0" />
-      {accountId && <Configure enablePersonalization={true} userToken={accountId} />}
+      {accountId && (
+        <Configure enablePersonalization={true} userToken={accountId} />
+      )}
       <button
         className="bg-transparent hover:bg-gray-100 text-gray-800 font-normal py-2 px-4 rounded inline-flex items-center justify-left"
         onClick={() => setIsOpen(true)}
@@ -247,7 +287,11 @@ export const SearchModal = (): JSX.Element => {
       >
         <MagnifyingGlassIcon width={24} />
       </button>
-      <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="fixed z-20 inset-0 overflow-y-auto">
+      <Dialog
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        className="fixed z-20 inset-0 overflow-y-auto"
+      >
         <div className="flex items-start justify-center min-h-screen mt-20">
           <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
 
@@ -277,7 +321,6 @@ export const SearchModal = (): JSX.Element => {
         </div>
       </Dialog>
     </InstantSearchNext>
-
   );
 };
 
