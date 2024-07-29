@@ -36,7 +36,7 @@ export default function HitsAlgolia({
     return (
       <>
         {showTotal && (
-          <div className="mx-auto text-center mb-6 text-lg">
+          <div className="mx-auto text-center mb-4 text-lg">
             Total <span className="font-semibold">{hits.length}</span> result(s)
           </div>
         )}

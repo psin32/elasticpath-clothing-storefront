@@ -36,13 +36,13 @@ const FinderPage = ({ slug, finderDetails, finderMenu }: FinderPageProps) => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [itemFilterMap, setItemFilterMap] = useState<any>({});
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [loading, setLoading] = useState(false);
   const [filters, setFilter] = useState<string>(
     "is_child:0" + finderDetails?.filters,
   );
 
   useEffect(() => {
     setDetails(finderDetails);
-    // Sort menu items by sequence (highest first)
     const sortedMenus = finderMenu.sort(
       (a: any, b: any) => b.sequence - a.sequence,
     );
@@ -53,12 +53,14 @@ const FinderPage = ({ slug, finderDetails, finderMenu }: FinderPageProps) => {
   }, [slug, finderDetails, finderMenu]);
 
   useEffect(() => {
+    setLoading(true);
     const fetchMenuItems = async () => {
       if (selectedMenu) {
         const menuItems = await getFinderMenuItems(selectedMenu.slug);
         setItems(
           menuItems.data.sort((a: any, b: any) => b.sequence - a.sequence),
         );
+        setLoading(false);
       }
     };
     fetchMenuItems();
@@ -98,14 +100,14 @@ const FinderPage = ({ slug, finderDetails, finderMenu }: FinderPageProps) => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <header className="bg-white shadow mb-6 p-6 rounded">
+      <header className="bg-white shadow mb-2 p-6 rounded">
         <h1 className="text-3xl font-bold text-gray-900">{details.name}</h1>
         <p className="mt-2 text-gray-600">{details.description}</p>
       </header>
 
-      <div className="bg-white p-6 rounded shadow flex">
+      <div className="bg-gray-900 p-2 rounded shadow flex">
         <div className="w-1/4 pr-6">
-          <div className="flex flex-col space-y-4 bg-gray-800 text-white p-4 rounded">
+          <div className="flex flex-col space-y-4 text-white p-4 rounded">
             {menus.map((menu: any, index) => (
               <div key={menu.slug} className="flex items-center">
                 <span className="mr-2 font-bold text-lg">{index + 1}.</span>
@@ -126,61 +128,70 @@ const FinderPage = ({ slug, finderDetails, finderMenu }: FinderPageProps) => {
         </div>
 
         <div className="w-3/4">
-          {selectedMenu && (
-            <>
-              <div className="bg-gray-900 p-4 rounded-md pl-8 pb-8">
-                <h3 className="text-xl font-bold text-white uppercase mb-6">
-                  {selectedMenu.description}
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 max-w-2xl text-white">
-                  {items.map((item: any) => (
-                    <div
-                      key={item.slug}
-                      className={`bg-gray-500 p-4 rounded-lg shadow cursor-pointer hover:bg-gray-300 ${
-                        selectedItem?.slug === item.slug
-                          ? "border-4 border-orange-500"
-                          : ""
-                      }`}
-                      onClick={() => handleItemClick(item)}
-                    >
-                      {item.image_url && (
-                        <img
-                          src={item.image_url}
-                          alt={item.name}
-                          className="h-8 w-8 object-cover mb-4 rounded-full text-white"
-                        />
-                      )}
-                      <h4 className="text-xl font-semibold mb-2">
-                        {item.name}
-                      </h4>
-                      <p className="text-white">{item.description}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 flex space-x-4">
-                  {previousMenu && (
-                    <StatusButton
-                      onClick={() => handleMenuClick(previousMenu)}
-                      className="bg-gray-500 text-white rounded-lg text-sm py-2"
-                    >
-                      Back: {previousMenu.name}
-                    </StatusButton>
-                  )}
-
-                  {nextMenu && (
-                    <StatusButton
-                      onClick={() => handleMenuClick(nextMenu)}
-                      className="bg-white text-black rounded-lg text-sm py-2"
-                    >
-                      Next: {nextMenu.name}
-                    </StatusButton>
-                  )}
-                </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-full">
+              <div className="spinner-container">
+                <div className="spinner"></div>
               </div>
-            </>
-          )}
+            </div>
+          ) : (
+            selectedMenu && (
+              <>
+                <div className="p-4 rounded-md pl-8 pb-8">
+                  <h3 className="text-xl font-bold text-white uppercase mb-6">
+                    {selectedMenu.description}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-white">
+                    {items.map((item: any) => (
+                      <div
+                        key={item.slug}
+                        className={`bg-gray-500 p-4 rounded-lg shadow cursor-pointer hover:bg-gray-300 ${
+                          selectedItem?.slug === item.slug
+                            ? "border-4 border-orange-500"
+                            : ""
+                        }`}
+                        onClick={() => handleItemClick(item)}
+                      >
+                        {item.image_url && (
+                          <img
+                            src={item.image_url}
+                            alt={item.name}
+                            className="h-8 w-8 object-cover mb-4 rounded-full text-white"
+                          />
+                        )}
+                        <h4 className="text-xl font-semibold mb-2">
+                          {item.name}
+                        </h4>
+                        <p className="text-white">{item.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6 flex space-x-4">
+                    {previousMenu && (
+                      <StatusButton
+                        onClick={() => handleMenuClick(previousMenu)}
+                        className="bg-gray-500 text-white rounded-lg text-sm py-2"
+                      >
+                        Back: {previousMenu.name}
+                      </StatusButton>
+                    )}
 
-          {/* {selectedItem && (
+                    {nextMenu && (
+                      <StatusButton
+                        onClick={() => handleMenuClick(nextMenu)}
+                        className="bg-white text-black rounded-lg text-sm py-2"
+                      >
+                        Next: {nextMenu.name}
+                      </StatusButton>
+                    )}
+                  </div>
+                </div>
+              </>
+            )
+          )}
+        </div>
+
+        {/* {selectedItem && (
             <div className="mt-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
                 Selected Item
@@ -198,22 +209,22 @@ const FinderPage = ({ slug, finderDetails, finderMenu }: FinderPageProps) => {
               </div>
             </div>
           )} */}
-
-          {selectedMenu && (
-            <div className="mt-6">
-              <InstantSearch
-                searchClient={searchClient}
-                indexName={algoliaEnvData.indexName}
-              >
-                {/* <SearchBox /> */}
-                <RefinementList attribute="slug" />
-                <Configure {...configureProps} />
-                <SearchResults />
-                <VirtualPagination />
-              </InstantSearch>
-            </div>
-          )}
-        </div>
+      </div>
+      <div className="bg-white rounded shadow flex justify-center items-center mt-2 pb-6">
+        {selectedMenu && (
+          <div className="mt-6">
+            <InstantSearch
+              searchClient={searchClient}
+              indexName={algoliaEnvData.indexName}
+            >
+              {/* <SearchBox /> */}
+              <RefinementList attribute="slug" />
+              <Configure {...configureProps} />
+              <SearchResults />
+              <VirtualPagination />
+            </InstantSearch>
+          </div>
+        )}
       </div>
     </div>
   );
