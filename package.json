@@ -56,7 +56,7 @@
     "formik": "^2.2.9",
     "instantsearch.js": "4.64.0",
     "js-cookie": "^3.0.5",
-    "next": "^14.0.0",
+    "next": "14.2.20",
     "pure-react-carousel": "^1.29.0",
     "rc-slider": "^10.3.0",
     "react": "^18.2.0",
